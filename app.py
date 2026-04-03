@@ -1,3 +1,7 @@
+"""
+ForecastAI - AI需求预测系统
+Version: 3.1.0 (Enhanced UI with Progress Bar & AI Assistant)
+"""
 import streamlit as st
 from modules.session_manager import init_session_state, get_progress
 
@@ -156,4 +160,4 @@ with col_sample:
         st.switch_page("pages/2_📊_Data_Upload.py")
 
 st.markdown("---")
-st.caption("ForecastAI v3.0 | AI-Powered Demand Forecasting System")
+st.caption("ForecastAI v3.1.0 | AI-Powered Demand Forecasting System | Enhanced UI")

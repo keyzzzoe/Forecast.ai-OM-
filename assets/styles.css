@@ -396,3 +396,295 @@
     margin: 0.3rem 0;
     font-size: 0.85rem;
 }
+
+/* ═══════════════════════════════════════════
+   Enhanced Progress Bar & AI Assistant
+   ═══════════════════════════════════════════ */
+
+/* ── Enhanced Progress Container ── */
+.enhanced-progress-container {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem 2rem;
+    margin: 1rem 0 2rem 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    border: 1px solid #e8edf5;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.progress-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a237e;
+}
+
+.progress-icon {
+    font-size: 1.3rem;
+}
+
+.progress-stats {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.progress-percent {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1e88e5;
+    line-height: 1;
+}
+
+.progress-text {
+    font-size: 0.85rem;
+    color: #78909c;
+}
+
+.progress-bar-track {
+    height: 8px;
+    background: #e8edf5;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1e88e5, #43a047);
+    border-radius: 10px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(30,136,229,0.4);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+/* ── Enhanced Step Progress ── */
+.step-progress-enhanced {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+}
+
+.step-item-enhanced {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.step-circle-enhanced {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 3px solid #e0e5ec;
+    background: white;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+.step-circle-enhanced .step-icon {
+    font-size: 1.5rem;
+    position: absolute;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+
+.step-circle-enhanced .step-number {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #aaa;
+    position: absolute;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.step-circle-enhanced.pending .step-icon {
+    opacity: 0.3;
+}
+
+.step-circle-enhanced.active {
+    background: linear-gradient(135deg, #1e88e5, #1565c0);
+    border-color: #1e88e5;
+    box-shadow: 0 6px 20px rgba(30,136,229,0.4);
+    transform: scale(1.1);
+}
+
+.step-circle-enhanced.active .step-icon {
+    opacity: 1;
+    filter: brightness(0) invert(1);
+}
+
+.step-circle-enhanced.completed {
+    background: linear-gradient(135deg, #43a047, #2e7d32);
+    border-color: #43a047;
+}
+
+.step-circle-enhanced.completed .step-icon {
+    opacity: 0;
+}
+
+.step-circle-enhanced.completed .step-number {
+    opacity: 1;
+    color: white;
+}
+
+.step-circle-enhanced.completed::after {
+    content: '✓';
+    position: absolute;
+    font-size: 1.8rem;
+    color: white;
+    font-weight: 700;
+}
+
+.step-label-enhanced {
+    font-size: 0.75rem;
+    margin-top: 8px;
+    color: #aaa;
+    text-align: center;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.step-label-enhanced.active {
+    color: #1e88e5;
+    font-weight: 700;
+}
+
+.step-label-enhanced.completed {
+    color: #43a047;
+    font-weight: 600;
+}
+
+.step-line-enhanced {
+    flex: 1;
+    height: 3px;
+    background: #e0e5ec;
+    margin: 0 0.5rem;
+    margin-top: -28px;
+    z-index: 0;
+    transition: all 0.4s;
+}
+
+.step-line-enhanced.completed {
+    background: linear-gradient(90deg, #43a047, #1e88e5);
+    box-shadow: 0 0 8px rgba(67,160,71,0.3);
+}
+
+/* ── AI Assistant Card ── */
+.ai-assistant-card {
+    background: linear-gradient(135deg, #f8fbff 0%, #ffffff 100%);
+    border-left: 5px solid #1e88e5;
+    border-radius: 0 16px 16px 0;
+    padding: 1.5rem 1.8rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 16px rgba(30,136,229,0.12);
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.ai-assistant-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+}
+
+.ai-icon {
+    font-size: 1.8rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+}
+
+.ai-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a237e;
+}
+
+.ai-assistant-body {
+    color: #37474f;
+    line-height: 1.7;
+}
+
+.ai-assistant-body p {
+    margin: 0.5rem 0;
+}
+
+.ai-assistant-body ul {
+    margin: 0.8rem 0;
+    padding-left: 1.5rem;
+}
+
+.ai-assistant-body li {
+    margin: 0.5rem 0;
+}
+
+.ai-assistant-body strong {
+    color: #1a237e;
+}
+
+.ai-tip {
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+    border-left: 3px solid #ffc107;
+    padding: 0.8rem 1rem;
+    border-radius: 0 8px 8px 0;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.ai-tip strong {
+    color: #e65100;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .step-progress-enhanced {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .step-line-enhanced {
+        display: none;
+    }
+    
+    .progress-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+}

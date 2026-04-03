@@ -2,6 +2,7 @@ import streamlit as st
 from modules.session_manager import init_session_state
 from modules.model_engine import ModelEngine
 from modules.gpt_agent import GPTAgent
+from modules.ai_assistant import get_progress_html, get_ai_assistant_html
 import pandas as pd
 import time
 
@@ -12,176 +13,174 @@ with open("assets/styles.css", encoding="utf-8") as f:
 
 init_session_state()
 
-if st.session_state.get('train_data') is None or st.session_state.get('test_data') is None:
+if not st.session_state.get('data_validated'):
     st.warning("⚠️ 请先完成数据上传和验证")
     if st.button("← 返回数据上传"):
         st.switch_page("pages/2_📊_Data_Upload.py")
     st.stop()
 
-# ── Step Progress ──
-st.markdown("""
-<div class="step-progress">
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">行业设定</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">数据上传</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle active">3</div><div class="step-label active">模型训练</div></div>
-  <div class="step-line"></div>
-  <div class="step-item"><div class="step-circle">4</div><div class="step-label">预测报告</div></div>
-  <div class="step-line"></div>
-  <div class="step-item"><div class="step-circle">5</div><div class="step-label">反馈迭代</div></div>
-</div>
-""", unsafe_allow_html=True)
+# ── Enhanced Progress Bar ──
+st.markdown(get_progress_html(current_step=3, completed_steps=[1, 2]), unsafe_allow_html=True)
+
+# ── AI Assistant ──
+st.markdown(get_ai_assistant_html(step=3), unsafe_allow_html=True)
 
 st.markdown(f"""
 <div class="page-header">
-  <h1>🤖 第三步：模型训练与对比</h1>
-  <p>预测目标：{st.session_state.get('forecast_target','—')} &nbsp;|&nbsp;
-     训练集：{len(st.session_state.train_data)} 条 &nbsp;|&nbsp;
-     测试集：{len(st.session_state.test_data)} 条</p>
+  <h1>🤖 第三步：模型训练</h1>
+  <p>AI 将自动训练多个预测模型，并为您选出最优方案</p>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Training ──
-if not st.session_state.get('model_results'):
-    st.markdown("""
-    <div class="section-card" style="text-align:center;padding:2.5rem">
-      <div style="font-size:3rem;margin-bottom:1rem">🧠</div>
-      <h3 style="color:#1a237e;margin-bottom:0.5rem">准备好了吗？</h3>
-      <p style="color:#78909c;margin-bottom:1.5rem">
-        系统将自动训练 <strong>移动平均、指数平滑、ARIMA</strong> 等多个模型，<br>
-        并按测试集误差排名，为您推荐最优方案。
-      </p>
-    </div>
-    """, unsafe_allow_html=True)
+# ── Training Section ──
+if st.session_state.get('model_results') is None:
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.markdown("### 🚀 开始训练")
 
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("🚀 开始训练所有模型", type="primary", use_container_width=True):
-            progress_bar = st.progress(0, text="初始化...")
-            status = st.empty()
+    st.info("""
+    **训练说明：**
+    - 系统将自动训练 6+ 个预测模型
+    - 根据数据量自动选择合适的算法
+    - 使用 MAPE（平均绝对百分比误差）评估模型
+    - 预计耗时：30 秒 - 2 分钟
+    """)
 
-            engine = ModelEngine()
-            train_df = st.session_state.train_data
-            test_df  = st.session_state.test_data
-            date_col = st.session_state.date_column
-            target_col = st.session_state.target_column
-            has_seasonality = st.session_state.get('has_seasonality', False)
+    if st.button("🎯 开始训练模型", type="primary", use_container_width=True):
+        progress_bar = st.progress(0)
+        status_text = st.empty()
 
-            progress_bar.progress(20, text="训练移动平均模型...")
-            time.sleep(0.3)
-            progress_bar.progress(50, text="训练指数平滑模型...")
-            time.sleep(0.3)
-            progress_bar.progress(75, text="训练 ARIMA 模型...")
+        try:
+            # Prepare data
+            status_text.text("📊 准备训练数据...")
+            progress_bar.progress(10)
+            time.sleep(0.5)
 
-            results = engine.train_all_models(train_df, test_df, date_col, target_col, has_seasonality)
+            processor = st.session_state.data_processor
+            train_df, test_df = processor.split_train_test()
+            st.session_state.train_data = train_df
+            st.session_state.test_data = test_df
 
-            progress_bar.progress(100, text="✅ 训练完成！")
-            time.sleep(0.4)
+            # Initialize engine
+            status_text.text("🔧 初始化模型引擎...")
+            progress_bar.progress(20)
+            time.sleep(0.5)
 
-            st.session_state.model_results = results
+            engine = ModelEngine(
+                train_df,
+                test_df,
+                st.session_state.date_column,
+                st.session_state.target_column,
+                has_seasonality=st.session_state.get('has_seasonality', False)
+            )
             st.session_state.model_engine = engine
+
+            # Train models
+            status_text.text("🤖 训练模型中（这可能需要 1-2 分钟）...")
+            progress_bar.progress(40)
+
+            results = engine.train_all_models()
+            progress_bar.progress(90)
+
+            # Save results
+            st.session_state.model_results = results
+            st.session_state.models_trained = True
+
+            progress_bar.progress(100)
+            status_text.text("✅ 训练完成！")
+            time.sleep(0.5)
+
+            st.success("🎉 模型训练成功！")
+            st.balloons()
             st.rerun()
+
+        except Exception as e:
+            st.error(f"❌ 训练失败: {str(e)}")
+            progress_bar.empty()
+            status_text.empty()
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 else:
+    # ── Results Display ──
     results = st.session_state.model_results
-    if not results:
-        st.warning("模型训练未产生结果，请重新训练")
-        if st.button("重新训练"):
-            del st.session_state['model_results']
-            st.rerun()
-        st.stop()
+    best_model = results[0]
 
-    best = results[0]
-    mape = best['metrics']['MAPE']
-    quality = "🟢 优秀" if mape < 10 else "🟡 良好" if mape < 20 else "🔴 可接受"
-
-    # ── Winner Banner ──
+    # Winner Banner
     st.markdown(f"""
     <div class="winner-banner">
-      <div class="trophy">🏆</div>
-      <div class="info">
-        <h3>{best['model_name']}</h3>
-        <p>MAPE {mape:.2f}% &nbsp;·&nbsp; RMSE {best['metrics']['RMSE']:.2f}
-           &nbsp;·&nbsp; R² {best['metrics']['R²']:.4f} &nbsp;·&nbsp; 质量评级 {quality}</p>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # ── Metrics ──
-    st.markdown(f"""
-    <div class="metric-row">
-      <div class="metric-card blue">
-        <div class="m-icon">📉</div>
-        <div class="m-value">{best['metrics']['MAE']:.2f}</div>
-        <div class="m-label">MAE</div>
-      </div>
-      <div class="metric-card orange">
-        <div class="m-icon">📊</div>
-        <div class="m-value">{best['metrics']['RMSE']:.2f}</div>
-        <div class="m-label">RMSE</div>
-      </div>
-      <div class="metric-card green">
-        <div class="m-icon">🎯</div>
-        <div class="m-value">{mape:.2f}%</div>
-        <div class="m-label">MAPE</div>
-      </div>
-      <div class="metric-card purple">
-        <div class="m-icon">📈</div>
-        <div class="m-value">{best['metrics']['R²']:.4f}</div>
-        <div class="m-label">R²</div>
-      </div>
+        <div class="trophy">🏆</div>
+        <div class="info">
+            <h3>最佳模型：{best_model['model_name']}</h3>
+            <p>MAPE: {best_model['metrics']['MAPE']:.2f}% |
+               MAE: {best_model['metrics']['MAE']:.2f} |
+               RMSE: {best_model['metrics']['RMSE']:.2f}</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-    # ── Model Comparison Table ──
-    st.markdown("### 📊 全部模型对比")
+    # ── Performance Metrics ──
+    st.markdown('<div class="section-card">', unsafe_allow_html=True)
+    st.markdown("### 📊 模型性能对比")
 
-    rows = []
-    for i, r in enumerate(results):
-        medal = ["🥇", "🥈", "🥉"][i] if i < 3 else f"#{i+1}"
-        rows.append({
-            "排名": medal,
-            "模型": r['model_name'],
-            "MAE": r['metrics']['MAE'],
-            "RMSE": r['metrics']['RMSE'],
-            "MAPE (%)": r['metrics']['MAPE'],
-            "R²": r['metrics']['R²'],
+    # Metrics cards
+    mape = best_model['metrics']['MAPE']
+    quality = "🟢 优秀" if mape < 10 else "🟡 良好" if mape < 20 else "🔴 可接受"
+
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("最佳模型", best_model['model_name'])
+    with col2:
+        st.metric("MAPE 误差率", f"{mape:.2f}%")
+    with col3:
+        st.metric("训练模型数", len(results))
+    with col4:
+        st.metric("模型质量", quality)
+
+    # Comparison table
+    comparison_data = []
+    for i, model in enumerate(results):
+        comparison_data.append({
+            "排名": f"#{i+1}",
+            "模型": model['model_name'],
+            "MAPE (%)": f"{model['metrics']['MAPE']:.2f}",
+            "MAE": f"{model['metrics']['MAE']:.2f}",
+            "RMSE": f"{model['metrics']['RMSE']:.2f}",
+            "R²": f"{model['metrics'].get('R2', 0):.3f}"
         })
 
-    df_cmp = pd.DataFrame(rows)
-    st.dataframe(
-        df_cmp.style.highlight_min(subset=["MAPE (%)"], color="#c8e6c9")
-                    .highlight_max(subset=["R²"], color="#c8e6c9")
-                    .format({"MAE": "{:.2f}", "RMSE": "{:.2f}", "MAPE (%)": "{:.2f}", "R²": "{:.4f}"}),
-        use_container_width=True, hide_index=True
-    )
+    df_comparison = pd.DataFrame(comparison_data)
+
+    # Style the dataframe
+    def highlight_best(row):
+        if row['排名'] == '#1':
+            return ['background-color: #e8f5e9'] * len(row)
+        return [''] * len(row)
+
+    styled_df = df_comparison.style.apply(highlight_best, axis=1)
+    st.dataframe(styled_df, use_container_width=True, hide_index=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-    # ── AI Analysis ──
-    with st.expander("💡 AI 模型分析", expanded=True):
+    # ── AI Explanation ──
+    with st.expander("💡 AI 模型选择说明", expanded=False):
         st.markdown('<div class="ai-box"><div class="ai-tag">🤖 AI 分析</div>', unsafe_allow_html=True)
         gpt = GPTAgent()
-        explanation = gpt.explain_model_selection({
-            'best_model': best['model_name'],
-            'mape': mape,
+        context = {
             'industry': st.session_state.get('industry'),
-            'has_seasonality': st.session_state.get('has_seasonality', False)
-        })
+            'best_model': best_model['model_name'],
+            'mape': mape,
+            'data_points': len(st.session_state.train_data)
+        }
+        explanation = gpt.explain_model_selection(context)
         st.markdown(explanation)
         st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("🔄 重新训练", use_container_width=True):
-            for k in ['model_results', 'model_engine']:
-                st.session_state.pop(k, None)
-            st.rerun()
-    with col2:
-        if st.button("查看预测结果 →", type="primary", use_container_width=True):
-            st.switch_page("pages/4_📈_Forecast_Report.py")
+    # ── Continue Button ──
+    if st.button("✅ 查看预测报告 →", type="primary", use_container_width=True):
+        st.switch_page("pages/4_📈_Forecast_Report.py")

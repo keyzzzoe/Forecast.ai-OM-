@@ -1,7 +1,7 @@
 import streamlit as st
 from modules.session_manager import init_session_state
 from modules.visualizer import Visualizer
-from modules.model_engine import ModelEngine
+from modules.ai_assistant import get_progress_html, get_ai_assistant_html
 import pandas as pd
 import numpy as np
 
@@ -18,20 +18,11 @@ if st.session_state.get('future_forecast') is None:
         st.switch_page("pages/4_📈_Forecast_Report.py")
     st.stop()
 
-# ── Step Progress ──
-st.markdown("""
-<div class="step-progress">
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">行业设定</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">数据上传</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">模型训练</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">预测报告</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle active">5</div><div class="step-label active">反馈迭代</div></div>
-</div>
-""", unsafe_allow_html=True)
+# ── Enhanced Progress Bar ──
+st.markdown(get_progress_html(current_step=5, completed_steps=[1, 2, 3, 4]), unsafe_allow_html=True)
+
+# ── AI Assistant ──
+st.markdown(get_ai_assistant_html(step=5), unsafe_allow_html=True)
 
 st.markdown("""
 <div class="page-header">
@@ -178,7 +169,7 @@ if st.session_state.actual_values:
         else:
             st.markdown("""
             <div class="ai-box" style="border-left-color:#e53935;background:linear-gradient(135deg,#ffebee,#fff3f3)">
-              <div class="ai-tag" style="color:#c62828">⚠️ 建议重新训练</div>
+              <div class="ai-tag" style="background:#e53935;color:white">⚠️ 建议重新训练</div>
               <p>误差率超过 20%，模型预测偏差较大。建议：</p>
               <ul>
                 <li>收集更多历史数据后重新训练</li>

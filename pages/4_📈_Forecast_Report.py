@@ -3,6 +3,7 @@ from modules.session_manager import init_session_state
 from modules.visualizer import Visualizer
 from modules.gpt_agent import GPTAgent
 from modules.report_generator import ReportGenerator
+from modules.ai_assistant import get_progress_html, get_ai_assistant_html
 import pandas as pd
 
 st.set_page_config(page_title="预测报告 — ForecastAI", page_icon="📈", layout="wide")
@@ -18,20 +19,11 @@ if st.session_state.get('model_results') is None:
         st.switch_page("pages/3_🤖_Model_Training.py")
     st.stop()
 
-# ── Step Progress ──
-st.markdown("""
-<div class="step-progress">
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">行业设定</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">数据上传</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle done">✓</div><div class="step-label done">模型训练</div></div>
-  <div class="step-line done"></div>
-  <div class="step-item"><div class="step-circle active">4</div><div class="step-label active">预测报告</div></div>
-  <div class="step-line"></div>
-  <div class="step-item"><div class="step-circle">5</div><div class="step-label">反馈迭代</div></div>
-</div>
-""", unsafe_allow_html=True)
+# ── Enhanced Progress Bar ──
+st.markdown(get_progress_html(current_step=4, completed_steps=[1, 2, 3]), unsafe_allow_html=True)
+
+# ── AI Assistant ──
+st.markdown(get_ai_assistant_html(step=4), unsafe_allow_html=True)
 
 best_model = st.session_state.model_results[0]
 engine = st.session_state.model_engine
@@ -198,5 +190,5 @@ st.markdown('</div>', unsafe_allow_html=True)
 
 st.markdown('<hr class="fancy-divider">', unsafe_allow_html=True)
 
-if st.button("进入反馈迭代 →", type="primary", use_container_width=True):
+if st.button("✅ 进入反馈迭代 →", type="primary", use_container_width=True):
     st.switch_page("pages/5_🔄_Feedback_Iteration.py")

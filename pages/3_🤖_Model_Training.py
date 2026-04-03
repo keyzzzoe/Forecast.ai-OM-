@@ -65,20 +65,20 @@ if st.session_state.get('model_results') is None:
             progress_bar.progress(20)
             time.sleep(0.5)
 
-            engine = ModelEngine(
-                train_df,
-                test_df,
-                st.session_state.date_column,
-                st.session_state.target_column,
-                has_seasonality=st.session_state.get('has_seasonality', False)
-            )
+            engine = ModelEngine()
             st.session_state.model_engine = engine
 
             # Train models
             status_text.text("🤖 训练模型中（这可能需要 1-2 分钟）...")
             progress_bar.progress(40)
 
-            results = engine.train_all_models()
+            results = engine.train_all_models(
+                train_df,
+                test_df,
+                st.session_state.date_column,
+                st.session_state.target_column,
+                has_seasonality=st.session_state.get('has_seasonality', False)
+            )
             progress_bar.progress(90)
 
             # Save results

@@ -159,6 +159,7 @@ if st.session_state.get('uploaded_data') is not None:
                 st.session_state.date_column = date_column
                 st.session_state.target_column = target_column
                 st.session_state.data_validated = True
+                st.session_state.data_processor = processor  # Save processor
 
                 date_start, date_end = summary['date_range']
                 mean_val = summary.get('mean', 0)

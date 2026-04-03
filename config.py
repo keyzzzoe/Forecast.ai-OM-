@@ -1,7 +1,10 @@
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not available in deployment
 
 # API Configuration
 USE_REAL_API = False  # Set to True when OpenAI API key is available

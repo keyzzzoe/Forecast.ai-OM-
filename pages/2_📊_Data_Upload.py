@@ -161,12 +161,13 @@ if st.session_state.get('uploaded_data') is not None:
                 st.session_state.data_validated = True
 
                 date_start, date_end = summary['date_range']
+                mean_val = summary.get('mean', 0)
                 st.success(f"""
                 ✅ 数据验证通过！
 
                 - 数据范围：{date_start} 至 {date_end}
                 - 总天数：{summary['total_rows']} 天
-                - 平均值：{summary['mean']:.2f}
+                - 平均值：{mean_val:.2f}
                 """)
                 st.balloons()
                 st.switch_page("pages/3_🤖_Model_Training.py")
